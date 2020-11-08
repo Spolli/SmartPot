@@ -1,0 +1,18 @@
+{
+    "growth": {
+        "day": "14-21",
+        "air_temp": "22-28",
+        "humidity": "50-70",
+        "water_temp": "",
+        "light_hour_on": "18:00",
+        "light_hour_off": "12:00"
+    },
+    "fruiting": {
+        "day": "17-27",
+        "air_temp": "24-28",
+        "humidity": "50-70",
+        "water_temp": "",
+        "light_hour_on": "18:00",
+        "light_hour_off": "12:00"
+    }
+}
