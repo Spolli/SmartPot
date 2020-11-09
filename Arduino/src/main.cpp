@@ -39,10 +39,11 @@ void loop() {
     Serial.println(data);
     Serial.flush();
   }
+  String sensor_data = ""
   if(ccs.available()){
     if(!ccs.readData()){
-      String data = String(ccs.geteCO2()) + "," + String(ccs.getTVOC());
-      Serial.println(data);
+      sensor_data += String(ccs.geteCO2()) + "," + String(ccs.getTVOC());
+      Serial.println(sensor_data);
     }
     else{
       Serial.println("None");

@@ -35,6 +35,9 @@ def checkLight():
     except Exception as e:
         print(e)
 
+def checkCO2(CO2, TVQ):
+    pass
+
 def getSensorValues(line):
     values = line.split(',')
     print(values)

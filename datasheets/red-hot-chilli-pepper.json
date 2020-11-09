@@ -6,7 +6,8 @@
         "water_temp": "",
         "light_hour_on": "18:00",
         "light_hour_off": "12:00",
-        "air_qual": ""
+        "co2_min": 330,
+        "co2_max": 1500
     },
     "fruiting": {
         "day": "17-27",
@@ -15,6 +16,7 @@
         "water_temp": "",
         "light_hour_on": "18:00",
         "light_hour_off": "12:00",
-        "air_qual": ""
+        "co2_min": 330,
+        "co2_max": 1500
     }
 }
