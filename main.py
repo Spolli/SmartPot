@@ -1,54 +1,23 @@
 #!/usr/bin/env python3
-import serial, json
-from datetime import datetime as dt
-from time import sleep
-from src.utility import *
-from src.GPIOutility import *
+from flask import Flask, render_template, redirect, url_for
 
-pinSetup = {
-    'PIN_MISC': 13,
-    'PIN_WATER_WARM': 12,
-    'PIN_VENT_OUT': 11,
-    'PIN_VENT_IN': 10,
-    'PIN_LAMPS': 9,
-    'PIN_POMPA': 8,
-    'PIN_DTH22': 7,
-    'PIN_WATER_LEVEL': 6,
-    'PIN_LIGHT': 5,
-    'PIN_WATER_TEMP': 4,
-    'PIN_CO2': 3
-}
+app = Flask(__name__, static_url_path='',
+            static_folder='webpage/static',
+            template_folder='webpage/templates')
 
-ser = serial.Serial('/dev/ttyACM0', 9600, timeout=1)
-ser.flush()
+app.config["DEBUG"] = True
 
-plant_info = getDataSheet('datasheets/red-hot-chilli-pepper.json')
+@app.route("/")
+def home():
+    return render_template("home.html")
 
-def checkLight():
-    try:
-        on = plant_info['growth']['light_hour_on'].split(':')
-        off = plant_info['growth']['light_hour_off'].split(':')
-        if dt.utcnow().hour == int(on[0]) and dt.utcnow().minute == int(on[1]):
-            LampOn()
-        if dt.utcnow().hour == int(off[0]) and dt.utcnow().minute == int(off[1]):
-            LampOff()
-    except Exception as e:
-        print(e)
+@app.route("/<name>")
+def user(name):
+    return f"Hello-- {name}!"
 
-def checkCO2(CO2, TVQ):
-    pass
+@app.route("/admin")
+def admin():
+    return redirect(url_for("home"))
 
-def getSensorValues(line):
-    values = line.split(',')
-    print(values)
-
-def main():
-    while True:
-        if ser.in_waiting > 0:
-            line = ser.readline().decode('utf-8').rstrip()
-            getSensorValues(line)
-            checkLight()
-            sleep(100)
-        
 if __name__ == "__main__":
-    main()
+    app.run(host="localhost", port=8000, debug=True)

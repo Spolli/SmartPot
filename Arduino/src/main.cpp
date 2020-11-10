@@ -1,7 +1,14 @@
 #include "Adafruit_CCS811.h"
 #include <Arduino.h>
+#include "DHT.h"
+#include <Adafruit_Sensor.h>
+
+#define DHTTYPE DHT22
+#define DHTPIN 7
+#define LIGHT_PIN 5
 
 Adafruit_CCS811 ccs;
+DHT dht(DHTPIN, DHTTYPE);
 
 void setup() {
   Serial.begin(9600);
@@ -9,6 +16,8 @@ void setup() {
     Serial.println("Failed to start sensor CO2! Please check your wiring.");
     while(1);
   }
+  pinMode(LIGHT_PIN,INPUT);
+  dht.begin();
 
   // Wait for the sensor to be ready
   while(!ccs.available());
@@ -30,6 +39,17 @@ String getValue(String data, char separator, int index)
     return found > index ? data.substring(strIndex[0], strIndex[1]) : "";
 }
 
+void getSensorValue(){
+  String sensor_data = "";
+  if(ccs.available()){
+    if(!ccs.readData()){
+      sensor_data += String(ccs.geteCO2()) + "," + String(ccs.getTVOC());
+    }
+  }
+  sensor_data += String("," + String(dht.readHumidity()) + "," + String(dht.readTemperature()) + "," + String(digitalRead(LIGHT_PIN)));
+  Serial.println(sensor_data);
+}
+
 void loop() {
   if (Serial.available() > 0) {
     String data = Serial.readStringUntil('\n');
@@ -39,16 +59,6 @@ void loop() {
     Serial.println(data);
     Serial.flush();
   }
-  String sensor_data = ""
-  if(ccs.available()){
-    if(!ccs.readData()){
-      sensor_data += String(ccs.geteCO2()) + "," + String(ccs.getTVOC());
-      Serial.println(sensor_data);
-    }
-    else{
-      Serial.println("None");
-      while(1);
-    }
-  }
+  getSensorValue();
   delay(1500);
 }
