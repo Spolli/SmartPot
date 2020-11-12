@@ -2,11 +2,16 @@
 #include <Arduino.h>
 #include "DHT.h"
 #include <Adafruit_Sensor.h>
+#include <OneWire.h>
+#include <DallasTemperature.h>
 
 #define DHTTYPE DHT22
 #define DHTPIN 7
 #define LIGHT_PIN 5
+#define WATER_TEMP_PIN 4
 
+OneWire oneWire(WATER_TEMP_PIN);
+DallasTemperature water_temp(&oneWire);
 Adafruit_CCS811 ccs;
 DHT dht(DHTPIN, DHTTYPE);
 
@@ -18,8 +23,7 @@ void setup() {
   }
   pinMode(LIGHT_PIN,INPUT);
   dht.begin();
-
-  // Wait for the sensor to be ready
+  water_temp.begin();
   while(!ccs.available());
 }
 
@@ -46,7 +50,9 @@ void getSensorValue(){
       sensor_data += String(ccs.geteCO2()) + "," + String(ccs.getTVOC());
     }
   }
-  sensor_data += String("," + String(dht.readHumidity()) + "," + String(dht.readTemperature()) + "," + String(digitalRead(LIGHT_PIN)));
+  sensor_data += String("," + String(dht.readHumidity()) + "," + String(dht.readTemperature()) + "," + String(digitalRead(LIGHT_PIN)) + ",");
+  water_temp.requestTemperatures();
+  sensor_data += String(water_temp.getTempCByIndex(0));
   Serial.println(sensor_data);
 }
 

@@ -2,8 +2,8 @@
 import serial, json
 from datetime import datetime as dt
 from time import sleep
-from src.utility import *
-from src.GPIOutility import *
+from src.utility.utility import *
+from src.utility.GPIOutility import *
 
 pinSetup = {
     'PIN_MISC': 13,
@@ -22,7 +22,7 @@ pinSetup = {
 ser = serial.Serial('/dev/ttyACM0', 9600, timeout=1)
 ser.flush()
 
-plant_info = getDataSheet('datasheets/red-hot-chilli-pepper.json')
+plant_info = getDataSheet('src/resources/datasheets/red-hot-chilli-pepper.json')
 
 def checkLight():
     try:
@@ -47,8 +47,8 @@ def main():
         if ser.in_waiting > 0:
             line = ser.readline().decode('utf-8').rstrip()
             getSensorValues(line)
-            checkLight()
-            sleep(100)
+            #checkLight()
+            sleep(10)
         
 if __name__ == "__main__":
     main()
