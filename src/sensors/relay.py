@@ -11,15 +11,6 @@ class Relay:
         'POMPA': 13
     }
 
-    appliance_status = {
-        'MISC': GPIO.LOW,
-        'WATER_WARM': GPIO.LOW,
-        'VENT_OUT': GPIO.LOW,
-        'VENT_IN': GPIO.LOW,
-        'LAMPS': GPIO.LOW,
-        'POMPA': GPIO.LOW
-    }
-
     def __init__(self):
         GPIO.setmode(GPIO.BCM)
         GPIO.setmode(GPIO.BOARD)

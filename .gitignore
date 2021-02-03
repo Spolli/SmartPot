@@ -130,4 +130,5 @@ dmypy.json
 
 .vscode
 
-Arduino/.pio/*
+Arduino
+src/resources/cred.py

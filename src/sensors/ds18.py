@@ -23,7 +23,7 @@ class Ds18:
         except Exception e:
             print(e)
         
-    def read_temp(self):
+    def readData(self):
         lines = read_temp_raw()
         while lines[0].strip()[-3:] != 'YES':
             time.sleep(0.2)
