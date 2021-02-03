@@ -29,12 +29,12 @@ def main():
     rele = Relay()
     wat_level_in = WaterLever(9)
     wat_level_out = WaterLever(11)
-    sensors = [DHT22(7), Ds18(), LM333(8)]
+    sensors = [DHT22(7), Ds18(), LM333(8)] #CCS881()
     while True:
         data = []
         for sen in sensors:
             data.append(sen.readData())
-        #TODO upload sensor data to db to statistics
+        #TODO upload sensor data to db for statistics
         if wat_level_out.readData() == 0:
             #TODO send telegram message to refill tank
         checkLight(rele)

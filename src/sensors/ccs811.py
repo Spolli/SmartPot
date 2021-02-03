@@ -3,7 +3,7 @@ import busio
 import adafruit_ccs811
 
 class CCS811:
-    #defualt pin 2 - 3
+    #dafault pin 2 - 3
     #alimentazione da 3.3v
 
     def __init__(self):

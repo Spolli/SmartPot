@@ -2,7 +2,7 @@ import Adafruit_DHT
 
 class DHT22:
     # default pin 7
-    def __init__(self, pin):
+    def __init__(self, pin=7):
         self.pin = pin
         self.DHT_SENSOR = Adafruit_DHT.DHT22
 

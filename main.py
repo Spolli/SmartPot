@@ -8,16 +8,9 @@ app = Flask(__name__, static_url_path='',
 app.config["DEBUG"] = True
 
 @app.route("/")
+@app.route("/home")
 def home():
     return render_template("home.html")
 
-@app.route("/<name>")
-def user(name):
-    return f"Hello-- {name}!"
-
-@app.route("/admin")
-def admin():
-    return redirect(url_for("home"))
-
 if __name__ == "__main__":
-    app.run(host="localhost", port=8000, debug=True)
+    app.run(host="localhost", port=8001, debug=True)

@@ -1,11 +1,68 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel='stylesheet' href='/bootstrap/css/bootstrap.min.css'>
     <title>Home</title>
 </head>
+
 <body>
-    
+    <div class="container overflow-hidden pt-5 my-3">
+        <div class="row justify-content-between gap-3">
+            <div class="col-4 p-5">
+                Peperoncino
+            </div>
+            <div class="col-4 p-5">
+                Data a caso
+            </div>
+        </div>
+        <div class="row row-cols-4 gap-3">
+            <div class="col p-5">
+                <div class="border p-2">
+                    <h6>Temperatura</h3>
+                    <p id="temp">20 °C</p>
+                </div>
+            </div>
+            <div class="col p-5">
+                <div class="border p-2">
+                    <h6>Umidità</h5>
+                    <p id="hum">2525</p>
+                </div>
+            </div>
+            <div class="col p-5">
+                <div class="border p-2">
+                    <h6>Temperatura Acqua</h5>
+                        <p id="water_temp">2525</p>
+                </div>
+            </div>
+            <div class="col p-5">
+                <div class="border p-2">
+                    <h6>CO2</h5>
+                    <p id="co2">2525</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container overflow-hidden pt-5 my-3 border">
+        <div class="row row-cols-3 justify-content-md-center gap-3">
+            <div class="col p-5" id="lamp">Column</div>
+            <div class="col p-5" id="pump">Column</div>
+            <div class="col p-5" id="vent_in">Column</div>
+            <div class="col p-5" id="vent_out">Column</div>
+            <div class="col p-5" id="water_heater">Column</div>
+            <div class="col p-5" id="misc" disabled>Column</div>
+        </div>
+    </div>
+    <div class="container overflow-hidden pt-5 my-3 border">
+        <h1>Graficone</h1>
+    </div>
+
+    <script src="jquery-3.5.1.min.js"></script>
+    <!--script src="='/bootstrap/js/popper.min.js"></script-->
+    <script src="/bootstrap/js/bootstrap.min.js"></script>
 </body>
+
 </html>
