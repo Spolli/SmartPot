@@ -9,6 +9,7 @@
 #define DHTPIN 7
 #define LIGHT_PIN 5
 #define WATER_TEMP_PIN 4
+#define WATER_LEVEL_PIN 6
 
 OneWire oneWire(WATER_TEMP_PIN);
 DallasTemperature water_temp(&oneWire);
@@ -19,12 +20,14 @@ void setup() {
   Serial.begin(9600);
   if(!ccs.begin()){
     Serial.println("Failed to start sensor CO2! Please check your wiring.");
-    while(1);
+    //while(1);
   }
   pinMode(LIGHT_PIN,INPUT);
+  pinMode(WATER_LEVEL_PIN,INPUT);
   dht.begin();
   water_temp.begin();
-  while(!ccs.available());
+  Serial.println("Caricamento CO2");
+  //while(!ccs.available());
 }
 
 String getValue(String data, char separator, int index)
@@ -50,7 +53,7 @@ void getSensorValue(){
       sensor_data += String(ccs.geteCO2()) + "," + String(ccs.getTVOC());
     }
   }
-  sensor_data += String("," + String(dht.readHumidity()) + "," + String(dht.readTemperature()) + "," + String(digitalRead(LIGHT_PIN)) + ",");
+  sensor_data += String("," + String(dht.readHumidity()) + "," + String(dht.readTemperature()) + "," + String(digitalRead(LIGHT_PIN)) + "," + String(digitalRead(WATER_LEVEL_PIN)) + ",");
   water_temp.requestTemperatures();
   sensor_data += String(water_temp.getTempCByIndex(0));
   Serial.println(sensor_data);
