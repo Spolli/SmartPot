@@ -12,6 +12,7 @@ from telepot.namedtuple import InlineKeyboardMarkup, InlineKeyboardButton
 #################################################################################################################################à
 
 bot = None
+rele = None
 
 with open('/home/spolli/DevSpace/Python-project/SmartPot/src/resources/status.json', 'r', encoding='utf-8') as f:
     status = json.load(f) 
@@ -46,6 +47,11 @@ def on_chat_message(msg):
                 #[InlineKeyboardButton(text='Invia una foto', callback_data='send_photo')]
             ])
             bot.sendMessage(CHAT_ID, 'Fai la tua scelta', reply_markup=keyboard)
+        if '/on' in msg['text'].lower():
+            keyboard = InlineKeyboardMarkup(inline_keyboard=[
+                [[InlineKeyboardButton(text=f"k", callback_data=f'k')], for k in status.keys()] #TODO da rivedere
+            ])
+            bot.sendMessage(CHAT_ID, 'Cosa vuoi accedente o spengere?', reply_markup=keyboard)
         else:
             bot.sendMessage(CHAT_ID, 'Opzione non valida!')
     else:
@@ -59,16 +65,23 @@ def on_callback_query(msg):
             txt = f'Pianta:\t{}\nUptime:\t{}\n'
             bot.answerCallbackQuery(CHAT_ID, text=txt)
         elif 'sensor_data' in msg['text']:
-            txt = f'Pianta:\t{}\nUptime:\t{}\n'
+            txt = f''
             bot.answerCallbackQuery(CHAT_ID, text=txt)
         elif 'appliance_status' in msg['text']:
-            txt = f'Pianta:\t{}\nUptime:\t{}\n'
+            for k, v in status.values():
+                txt += f'{k}:\t{"On" if v == 1 else "Off"}\n'
             bot.answerCallbackQuery(CHAT_ID, text=txt)
+        elif status[msg['text']]:
+            global status, rele
+            rele.toggle(msg['text'])
+            status[msg['text']] = rele.status(msg['text'])
+            update_status()
+            bot.answerCallbackQuery(CHAT_ID, text=f'è stato modificato {msg["text"]}, con un valore di {status[msg['text']]}')
         else:
             bot.answerCallbackQuery(CHAT_ID, text='Opzione non valida!')
 
 def main():
-    global bot
+    global bot, rele
     bot = telepot.Bot(TOKEN)
     rele = Relay()
     wat_level_in = WaterLever(9)
@@ -80,7 +93,7 @@ def main():
         for sen in sensors:
             data.append(sen.readData())
         #TODO upload sensor data to db for statistics
-        if wat_level_out.readData() == 0:
+        if wat_level_out.readData():
             bot.sendMessage(CHAT_ID, 'Riempi la riserva di acqua che stà per finì!')
         checkLight(rele)
         

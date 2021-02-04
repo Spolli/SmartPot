@@ -1,7 +1,6 @@
-import RPi.GPIO as GPIO
+from gpiozero import LED
 
 class Relay:
-    
     pinSetup = {
         'MISC': 21,
         'WATER_WARM': 20,
@@ -12,15 +11,18 @@ class Relay:
     }
 
     def __init__(self):
-        GPIO.setmode(GPIO.BCM)
-        GPIO.setmode(GPIO.BOARD)
         for k, v in self.pinSetup.values():
-            GPIO.setup(v, GPIO.OUT)
+            self.ctrl_app[k] = LED(v)
 
     def turnOn(self, appliance):
-        GPIO.output(self.pinSetup[appliance], GPIO.HIGH)
-        self.appliance_status[appliance] = GPIO.HIGH
+        self.ctrl_app[appliance].on()
 
     def turnOff(self, appliance):
-        GPIO.output(self.pinSetup[appliance], GPIO.LOW)
-        self.appliance_status[appliance] = GPIO.LOW
+        self.ctrl_app[appliance].off()
+
+    def toggle(self, appliance):
+        self.ctrl_app[appliance].toggle()
+
+    def status(self, appliance):
+        return self.ctrl_app[appliance].value
+
