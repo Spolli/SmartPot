@@ -2,6 +2,7 @@
 import json
 from datetime import datetime as dt
 from time import sleep
+from threading import Timer
 from src.sensors import *
 from src.resources.cred import TOKEN, CHAT_ID
 
@@ -93,10 +94,12 @@ def main():
         for sen in sensors:
             data.append(sen.readData())
         #TODO upload sensor data to db for statistics
-        if wat_level_out.readData():
+        if not wat_level_out.readData():
             bot.sendMessage(CHAT_ID, 'Riempi la riserva di acqua che stà per finì!')
+        if not wat_level_in.readData():     #Riempimento vaso piante da riserva
+            rele.turnOn('PUMP'))
+            Timer(10.0, rele.turnOff('PUMP')).start()
         checkLight(rele)
-        
         sleep(20)
         
 if __name__ == "__main__":

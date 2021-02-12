@@ -7,7 +7,7 @@ class Relay:
         'VENT_OUT': 16,
         'VENT_IN': 16,
         'LAMPS': 19,
-        'POMPA': 13
+        'PUMP': 13
     }
 
     def __init__(self):
