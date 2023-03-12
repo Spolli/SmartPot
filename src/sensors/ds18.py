@@ -20,7 +20,7 @@ class Ds18:
             lines = f.readlines()
             f.close()
             return lines
-        except Exception e:
+        except Exception as e:
             print(e)
         
     def readData(self):

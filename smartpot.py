@@ -15,11 +15,11 @@ from telepot.namedtuple import InlineKeyboardMarkup, InlineKeyboardButton
 bot = None
 rele = None
 
-with open('/home/spolli/DevSpace/Python-project/SmartPot/src/resources/status.json', 'r', encoding='utf-8') as f:
+with open('src/resources/status.json', 'r', encoding='utf-8') as f:
     status = json.load(f) 
 
 def update_status():
-    with open('/home/spolli/DevSpace/Python-project/SmartPot/src/resources/status.json', 'w', encoding='utf-8') as f:
+    with open('src/resources/status.json', 'w', encoding='utf-8') as f:
         f.write(json.dump(status))
         f.close()
 

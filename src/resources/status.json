@@ -1,8 +1,9 @@
 {
-    "MISC": 0,
-    "WATER_WARM": 0,
-    "VENT_OUT": 0,
-    "VENT_IN": 0,
-    "LAMPS": 0,
-    "PUMP": 0
+    "vegetative": 0,
+    "startTime": "19:00",
+    "lightHours": {
+        "vegetativeON": 18,
+        "vegetativeOFF": 6,
+        "flowering": 12
+    }
 }
