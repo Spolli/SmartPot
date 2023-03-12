@@ -80,7 +80,7 @@ def handle(msg):
         if msg['text'] == "/start":
             welcome = '''Welcome farmer to the highest tech growbox\n
                 /start --> print welcome messagge\n 
-                /info --> print growbox info\n 
+                /sensors --> print growbox sensors's infos\n 
                 /status --> print relay status\n
                 /getCurrentTimer --> print when the light will turn on\n 
                 /changeCurrentTimer --> change the time when the light will turn on\n 
@@ -88,7 +88,7 @@ def handle(msg):
                 /flowering --> change to vegetative mode 
             '''
             bot.sendMessage(chat_id, welcome)
-        if msg['text'] == "/info":
+        if msg['text'] == "/sensors":
             try:
                 hum, temp = dht.readData()
                 soil_moi = soil_moisture.readData()
@@ -144,15 +144,19 @@ def main():
         if datetime.now() > timer_time:
             if status["vegetative"] == 0 and light_control.status() == 0:
                 light_control.turnOn()
+                fanInside_control.turnOn()
                 timer_time += timedelta(hours=status["lightHours"]["vegetativeON"])
             if status["vegetative"] == 0 and light_control.status() == 1:
                 light_control.turnOff()
+                fanInside_control.turnOff()
                 timer_time += timedelta(hours=status["lightHours"]["vegetativeOFF"])
             if status["vegetative"] == 1 and light_control.status() == 0:
                 light_control.turnOn()
+                fanInside_control.turnOn()
                 timer_time += timedelta(hours=status["lightHours"]["flowering"])
             if status["vegetative"] == 1 and light_control.status() == 1:
                 light_control.turnOff()
+                fanInside_control.turnOff()
                 timer_time += timedelta(hours=status["lightHours"]["flowering"])
         if soil_moisture.readData() == "HIGH" and not water_level.readData():
             pump_control.turnOff()
@@ -165,12 +169,12 @@ def main():
             hum, temp = dht.readData()
             if  temp < 20 or hum < 40:
                 fanIn_control.turnOff()
-                fanIn_control.turnOff()
+                fanInside_control.turnOff()
                 fanOut_control.turnOff()
                 bot.sendMessage(CHAT_ID, f'Temperature or Humidity Too Hight!\nTemperature: {temp} C\nHumidity: {hum} %')
             if temp > 30 or hum > 70:
                 fanIn_control.turnOn()
-                fanIn_control.turnOn()
+                fanInside_control.turnOn()
                 fanOut_control.turnOn()
                 bot.sendMessage(CHAT_ID, f'Temperature or Humidity Too Low!\nTemperature: {temp} C\nHumidity: {hum} %')
         except Exception as e:
