@@ -8,7 +8,7 @@ class CCS811:
 
     def __init__(self):
         self.i2c = busio.I2C(board.SCL, board.SDA)
-        self.ccs811 = adafruit_ccs811.CCS811(i2c)
+        self.ccs811 = adafruit_ccs811.CCS811(self.i2c)
 
     def readData(seld):
         if self.ccs811.data_ready:

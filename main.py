@@ -35,22 +35,23 @@ def update_status():
 def buildDate(hours, minutes):
     # Get current date and time
     now = datetime.now()
-    
-    # Create new datetime with input hours and minutes, and other values from current time
-    new_datetime = datetime(
-        year=now.year,
-        month=now.month,
-        day=now.day,
-        hour=hours,
-        minute=minutes,
-        second=0,
-        microsecond=0
-    )
+    try:
+        # Create new datetime with input hours and minutes, and other values from current time
+        new_datetime = datetime(
+            year=now.year,
+            month=now.month,
+            day=now.day,
+            hour=int(hours),
+            minute=int(minutes),
+            second=0,
+            microsecond=0
+        )
+        if new_datetime < datetime.now():
+            new_datetime += timedelta(days=1)
 
-    if new_datetime < datetime.now():
-        new_datetime += timedelta(days=1)
-
-    return new_datetime
+        return new_datetime
+    except:
+        return now    
 
 def init():
     global status, timer_time, bot, light_control, dht, soil_moisture, pump_control, fanOut_control, fanIn_control, water_level, fanInside_control, co2_sensor
