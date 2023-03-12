@@ -6,8 +6,10 @@ from src.sensors.dht22 import *
 from src.sensors.relay import *
 from src.sensors.soil_moisture import *
 from src.sensors.water_level import *
+from src.sensors.ccs811 import *
 import re
 from threading import Timer
+from time import sleep
 
 import telepot
 from telepot.loop import MessageLoop
@@ -17,12 +19,12 @@ from src.resources.cred import TOKEN, CHAT_ID
 pinOut = {
     "light": 26,
     "dht": 19,
-    "soil_moisture": 0,
-    "pump": 0,
-    "fanOut": 0,
-    "fanIn": 0,
-    "fanInside": 0,
-    "wanter_level": 0
+    "soil_moisture": 13,
+    "pump": 21,
+    "fanOut": 20,
+    "fanIn": 16,
+    "fanInside": 12,
+    "wanter_level": 25
 }
 
 def update_status():
@@ -51,7 +53,7 @@ def buildDate(hours, minutes):
     return new_datetime
 
 def init():
-    global status, timer_time, bot, light_control, dht, soil_moisture, pump_control, fanOut_control, fanIn_control, water_level, fanInside_control
+    global status, timer_time, bot, light_control, dht, soil_moisture, pump_control, fanOut_control, fanIn_control, water_level, fanInside_control, co2_sensor
     with open('src/resources/status.json', 'r', encoding='utf-8') as f:
         status = json.load(f)
     hm = status["startTime"].split(":")
@@ -60,6 +62,7 @@ def init():
     light_control = Relay(pinOut["light"])
     light_control.turnOff()
     dht = DHT22(pinOut["dht"])
+    co2_sensor = CCS811()
     water_level = WaterLever(pinOut["wanter_level"])
     soil_moisture = Soil_Moisture(pinOut["soil_moisture"])
     pump_control = Relay(pinOut["pump"])
@@ -75,7 +78,7 @@ def handle(msg):
     content_type, chat_type, chat_id = telepot.glance(msg)
     if content_type == 'text' and chat_id == CHAT_ID:
         if msg['text'] == "/start":
-            welcome = """Welcome farmer to the highest tech growbox\n
+            welcome = '''Welcome farmer to the highest tech growbox\n
                 /start --> print welcome messagge\n 
                 /info --> print growbox info\n 
                 /status --> print relay status\n
@@ -83,17 +86,21 @@ def handle(msg):
                 /changeCurrentTimer --> change the time when the light will turn on\n 
                 /vegetative --> change to vegetative mode\n 
                 /flowering --> change to vegetative mode 
-            """
+            '''
             bot.sendMessage(chat_id, welcome)
         if msg['text'] == "/info":
             try:
                 hum, temp = dht.readData()
                 soil_moi = soil_moisture.readData()
+                eco2, tvoc = co2_sensor.readData()
                 info = f'''
                     {"Vegetative" if status["vegetative"] else "Flowering"}\n
                     Temperature: {temp} C\n
                     Humidity: {hum}\n
-                    Soil Moisture: {soil_moi}
+                    Soil Moisture: {soil_moi}\n
+                    CO2: {eco2} PPM\n
+                    TVOC: {tvoc} PPM
+                    "
                 '''
                 bot.sendMessage(chat_id, info)
             except Exception as e:
@@ -121,7 +128,6 @@ def handle(msg):
                 bot.sendMessage(chat_id, f'The light is now going to turn ON at {timer_time.strftime("%H:%M")}')
             else:
                 bot.sendMessage(chat_id, "Incorrect data format!")
-
         if msg['text'] == "/vegetative":
             status["vegetative"] = 0
             update_status()
@@ -130,7 +136,7 @@ def handle(msg):
             status["vegetative"] = 1
             update_status()
             bot.sendMessage(chat_id, f'Set to flowering mode')
-        
+
 def main():
     global timer_time
     MessageLoop(bot, handle).run_as_thread()
@@ -148,10 +154,13 @@ def main():
             if status["vegetative"] == 1 and light_control.status() == 1:
                 light_control.turnOff()
                 timer_time += timedelta(hours=status["lightHours"]["flowering"])
-        if water_level.readData() or soil_moisture.readData() == "HIGH":
+        if soil_moisture.readData() == "HIGH" and not water_level.readData():
             pump_control.turnOff()
             t = Timer(1800,pump_control.turnOn(),['Waiting'])
             t.start()
+        if water_level.readData():
+            pump_control.turnOff()
+            bot.sendMessage(CHAT_ID, f'The water tank is empty!')
         try:
             hum, temp = dht.readData()
             if  temp < 20 or hum < 40:
@@ -166,6 +175,7 @@ def main():
                 bot.sendMessage(CHAT_ID, f'Temperature or Humidity Too Low!\nTemperature: {temp} C\nHumidity: {hum} %')
         except Exception as e:
             bot.sendMessage(CHAT_ID, f'{e}')
+    sleep(1000)
         
 if __name__ == "__main__":
     init()
