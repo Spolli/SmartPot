@@ -34,10 +34,10 @@ def update_status():
 
 def buildDate(hours, minutes):
     # Get current date and time
-    now = datetime.datetime.now()
+    now = datetime.now()
     
     # Create new datetime with input hours and minutes, and other values from current time
-    new_datetime = datetime.datetime(
+    new_datetime = datetime(
         year=now.year,
         month=now.month,
         day=now.day,
@@ -47,7 +47,7 @@ def buildDate(hours, minutes):
         microsecond=0
     )
 
-    if new_datetime < datetime.datetime.now():
+    if new_datetime < datetime.now():
         new_datetime += timedelta(days=1)
 
     return new_datetime
