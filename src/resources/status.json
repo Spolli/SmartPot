@@ -1,9 +1,6 @@
 {
-    "vegetative": 0,
-    "startTime": "19:00",
-    "lightHours": {
-        "vegetativeON": 18,
-        "vegetativeOFF": 6,
-        "flowering": 12
-    }
+    "plantType": "autoflowering",
+    "plantStatus": "vegetative",
+    "startTime": 19,
+    "endTime": 11
 }

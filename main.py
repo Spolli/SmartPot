@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 
 import json
-from datetime import datetime, timedelta
+from datetime import datetime
 from time import sleep
-import os
 
 import telepot
 from telepot.loop import MessageLoop
@@ -24,7 +23,7 @@ PIN_CONFIG = {
     "wanter_level": 25
 }
 
-DEBUG = os.environ.get('DEBUG', False)
+DEBUG = True
 
 def update_status(status_data):
     try:
@@ -33,31 +32,10 @@ def update_status(status_data):
     except Exception as e:
         raise ValueError(f"Error updating status: {str(e)}")
 
-def buildDate(hours, minutes):
-    now = datetime.now()
-    try:
-        new_datetime = datetime(
-            year=now.year,
-            month=now.month,
-            day=now.day,
-            hour=int(hours),
-            minute=int(minutes),
-            second=0,
-            microsecond=0
-        )
-        if new_datetime < datetime.now():
-            new_datetime += timedelta(days=1)
-
-        return new_datetime
-    except:
-        return now    
-
 def init():
-    global status, timer_time, bot, light_control, dht, soil_moisture, pump_control, fanOut_control, fanIn_control, water_level, fanInside_control, co2_sensor
+    global status, bot, light_control, dht, soil_moisture, pump_control, fanOut_control, fanIn_control, water_level, fanInside_control
     with open('src/resources/status.json', 'r', encoding='utf-8') as f:
         status = json.load(f)
-    hm = status["startTime"].split(":")
-    timer_time = buildDate(hm[0], hm[1])
     bot = telepot.Bot(TOKEN)
     light_control = Relay(PIN_CONFIG["light"])
     light_control.turnOff()
@@ -74,9 +52,9 @@ def init():
     fanInside_control.turnOff()
 
 def handle(msg):
-    global timer_time
     content_type, chat_type, chat_id = telepot.glance(msg)
-    print(content_type, chat_type, chat_id)
+    if DEBUG:
+        print(content_type, chat_type, chat_id)
     if content_type == 'text':
         if msg['text'] == "/start":
             welcome = '''Welcome farmer to the highest tech growbox
@@ -84,9 +62,8 @@ def handle(msg):
 /sensors --> print growbox sensors's infos
 /status --> print relay status
 /getCurrentTimer --> print when the light will turn on
-/changeCurrentTimer --> change the time when the light will turn on
-/vegetative --> change to vegetative mode
-/flowering --> change to vegetative mode 
+/changeStartTime --> change the time when the light will turn on
+/changeEndTime --> change the time when the light will turn off
             '''
             bot.sendMessage(chat_id, welcome)
         if msg['text'] == "/sensors":
@@ -94,7 +71,6 @@ def handle(msg):
                 hum, temp = dht.readData()
                 soil_moi = soil_moisture.readData()
                 info = f'''
-{"Vegetative" if status["vegetative"] else "Flowering"}
 Temperature: {temp:.2f} ºC
 Humidity: {hum:.2f} %
 Soil Moisture: {soil_moi}
@@ -116,59 +92,46 @@ Fan Insiede: {fanInside_control.status()}
             '''
             bot.sendMessage(chat_id, info)
         if msg['text'] == "/getCurrentTimer":
-            bot.sendMessage(chat_id, f'The light is going to turn ON at {timer_time.strftime("%H:%M")}')
-        if '/changeCurrentTimer' in msg['text']:
+            bot.sendMessage(chat_id, f'The light is going to turn ON at {status["startTime"]}:00 and then turn OFF at {status["endTime"]}:00')
+        if '/changeStartTime' in msg['text']:
             try:
-                hm = msg['text'].split(' ')[1].split(':')
-                if len(hm) == 2:
-                    hours, minutes = map(int, hm)
-                    if 0 <= hours < 24 and 0 <= minutes < 60:
-                        status["startTime"] = ':'.join(hm)
-                        update_status(status)
-                        timer_time = buildDate(hours, minutes)
-                        bot.sendMessage(chat_id, f'The light is now going to turn ON at {timer_time.strftime("%H:%M")}')
-                    else:
-                        bot.sendMessage(chat_id, "Invalid time format!")
+                h = int(msg['text'].split(' ')[1].strip())
+                if 0 <= h < 24:
+                    status["startTime"] = h
+                    update_status(status)
+                    bot.sendMessage(chat_id, f'The light is now going to turn ON at {h}:00')
                 else:
                     bot.sendMessage(chat_id, "Incorrect data format!")
             except Exception as e:
                 if DEBUG:
                     print(f"Error changing timer: {e}")
                 else:
-                    bot.sendMessage(chat_id, "An error occurred while changing the timer. Please try again.")
-        if msg['text'] == "/vegetative":
-            status["vegetative"] = 0
-            update_status(status)
-            bot.sendMessage(chat_id, f'Set to vegetative mode')
-        if msg['text'] == "/flowering":
-            status["vegetative"] = 1
-            update_status(status)
-            bot.sendMessage(chat_id, f'Set to flowering mode')
+                    bot.sendMessage(chat_id, "You have not insert a valid hour number!")
+        if '/changeEndTime' in msg['text']:
+            try:
+                h = int(msg['text'].split(' ')[1].strip())
+                if 0 <= h < 24:
+                    status["endTime"] = h
+                    update_status(status)
+                    bot.sendMessage(chat_id, f'The light is now going to turn OFF at {h}:00')
+                else:
+                    bot.sendMessage(chat_id, "Incorrect data format!")
+            except Exception as e:
+                if DEBUG:
+                    print(f"Error changing timer: {e}")
+                else:
+                    bot.sendMessage(chat_id, "You have not insert a valid hour number!")
 
 def main():
-    init()
-
-    global timer_time
     MessageLoop(bot, handle).run_as_thread()
     while True:
-        if datetime.now() > timer_time:
-            if status["vegetative"] == 0 and light_control.status() == 0:
-                light_control.turnOn()
-                fanInside_control.turnOn()
-                timer_time += timedelta(hours=status["lightHours"]["vegetativeON"])
-            if status["vegetative"] == 0 and light_control.status() == 1:
-                light_control.turnOff()
-                fanInside_control.turnOff()
-                timer_time += timedelta(hours=status["lightHours"]["vegetativeOFF"])
-            if status["vegetative"] == 1 and light_control.status() == 0:
-                light_control.turnOn()
-                fanInside_control.turnOn()
-                timer_time += timedelta(hours=status["lightHours"]["flowering"])
-            if status["vegetative"] == 1 and light_control.status() == 1:
-                light_control.turnOff()
-                fanInside_control.turnOff()
-                timer_time += timedelta(hours=status["lightHours"]["flowering"])
-
+        if status['startTime'] <= datetime.now().hours <= status['endTime']:
+            light_control.turnOn()
+            fanInside_control.turnOn()
+        else:
+            light_control.turnOff()
+            fanInside_control.turnOff()
+            
         try:
             hum, temp = dht.readData()
             if  temp < 20 or hum < 40:
