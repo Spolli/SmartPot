@@ -1,7 +1,6 @@
 import Adafruit_DHT
 
 class DHT22:
-    # default pin 7
     def __init__(self, pin):
         self.pin = pin
         self.DHT_SENSOR = Adafruit_DHT.DHT22
@@ -11,4 +10,4 @@ class DHT22:
         if humidity is not None and temperature is not None:
             return humidity, temperature
         else:
-            raise Exception("Data from DHT sensor not return values!")
+            raise ValueError("Data from DHT sensor did not return values!")
