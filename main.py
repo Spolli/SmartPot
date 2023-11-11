@@ -2,7 +2,6 @@
 
 import json
 from datetime import datetime, timedelta
-from threading
 from time import sleep
 import os
 
