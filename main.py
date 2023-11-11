@@ -2,8 +2,9 @@
 
 import json
 from datetime import datetime, timedelta
-from threading import Timer
+from threading
 from time import sleep
+import os
 
 import telepot
 from telepot.loop import MessageLoop
@@ -23,6 +24,8 @@ PIN_CONFIG = {
     "fanInside": 12,
     "wanter_level": 25
 }
+
+DEBUG = os.environ.get('DEBUG', False)
 
 def update_status(status_data):
     try:
@@ -99,7 +102,10 @@ Soil Moisture: {soil_moi}
                 '''
                 bot.sendMessage(chat_id, info)
             except Exception as e:
-                bot.sendMessage(chat_id, e)
+                if DEBUG:
+                    print(f"Error reading sensors: {e}")
+                else:
+                    bot.sendMessage(chat_id, "An error occurred while reading sensors. Please try again.")
         if msg['text'] == "/status":
             info = f'''
 Here the relay status
@@ -127,7 +133,10 @@ Fan Insiede: {fanInside_control.status()}
                 else:
                     bot.sendMessage(chat_id, "Incorrect data format!")
             except Exception as e:
-                bot.sendMessage(chat_id, f"Error: {e}")
+                if DEBUG:
+                    print(f"Error changing timer: {e}")
+                else:
+                    bot.sendMessage(chat_id, "An error occurred while changing the timer. Please try again.")
         if msg['text'] == "/vegetative":
             status["vegetative"] = 0
             update_status(status)
